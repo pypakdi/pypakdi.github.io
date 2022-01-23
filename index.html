@@ -1,0 +1,27 @@
+<html>
+    <head>
+        <title>pOOBs4 9.00</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="assets/css/style.css" rel="stylesheet">
+
+        <script src="assets/js/int64.js"></script>
+        <script src="assets/js/rop.js"></script>
+        <script src="assets/js/wexploit.js"></script>
+        <script src="assets/js/kexploit.js"></script>
+
+        <script>
+            function run_exploits() {
+                document.getElementById("status").innerText = "Exploiting WebKit";
+                wexploit();
+
+                document.getElementById("status").innerText = "Exploiting Kernel";
+                kexploit();
+            }
+        </script>
+    </head>
+
+    <body onload="setTimeout(run_exploits, 1500)">
+        <div id="loader" class="circle"></div>
+        <div id="status" class="status">pOOBs4 9.00</div>
+    </body>
+</html>
