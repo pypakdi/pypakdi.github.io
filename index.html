@@ -54,23 +54,13 @@
                 wexploit();
                 kexploit();
                 
-                document.getElementById("loading_container").style.display = "none";
-                document.getElementById("payload_container").style.display = "block";
+                load_payload('assets/payloads/goldhen_2.0b2_900.bin');
             }
         </script>
     </head>
 
     <body onload="setTimeout(run_exploits, 1500)">
-        <div id="loading_container" style="display:block;">
-            <div id="loader" class="circle"></div>
-            <div id="status" class="status">Running exploits...</div>
-        </div>
-        <div id="payload_container" style="display:none;">
-            <payloads>
-                <buttons>
-                    <button onclick="load_payload('assets/payloads/goldhen_2.0b2_900.bin')">GoldHEN 2.0b2</button>
-                </buttons>
-            </payloads>
-        </div>
+        <div id="loader" class="circle"></div>
+        <div id="status" class="status">Running exploits...</div>
     </body>
 </html>
