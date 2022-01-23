@@ -11,17 +11,18 @@
 
         <script>
             function run_exploits() {
-                document.getElementById("status").innerText = "Exploiting WebKit";
                 wexploit();
-
-                document.getElementById("status").innerText = "Exploiting Kernel";
                 kexploit();
+
+                setTimeout(function() {
+                    location.replace("payloads.html");
+                }, 1500);
             }
         </script>
     </head>
 
     <body onload="setTimeout(run_exploits, 1500)">
         <div id="loader" class="circle"></div>
-        <div id="status" class="status">pOOBs4 9.00</div>
+        <div id="status" class="status">Running exploits...</div>
     </body>
 </html>
