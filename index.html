@@ -10,19 +10,64 @@
         <script src="assets/js/kexploit.js"></script>
 
         <script>
+            function run_payload(payload_data) {
+                var payload_buffer = chain.syscall(477, 0x0, 0x300000, 0x7, 0x1000, 0xFFFFFFFF, 0);
+                var payload_loader = p.malloc32(payload_data.length);
+
+                //NOTE: You can replace this with a payload instead of the loader.
+                //You would need to create an array view of payload_buffer to do that. (var payload_writer = p.array_from_address(payload_buffer);)
+                //And other ways, ....
+
+                //This is  x86_64 asm, you can disassemble it* if you want to know what the payload loader does under the hood. (* will need to account for endianness)
+                var loader_writer = payload_loader.backing;
+                for(var i = 0; i < payload_data.length; i++) {
+                    loader_writer[i] = payload_data[i];
+                }
+                chain.syscall(74, payload_loader, 0x4000, (0x1 | 0x2 | 0x4));
+
+                var pthread = p.malloc(0x10);
+                {
+                    chain.fcall(window.syscalls[203], payload_buffer, 0x300000);
+                    chain.fcall(libKernelBase.add32(OFFSET_lk_pthread_create), pthread, 0x0, payload_loader, payload_buffer);
+                }
+                chain.run();
+            }
+
+            function load_payload(payload_file) {
+                var req = new XMLHttpRequest();
+                req.responseType = "arraybuffer";
+                req.open("GET", payload_file);
+                req.onreadystatechange = function() {
+                    if(req.readyState == XMLHttpRequest.DONE) {
+                        var data = new Uint8Array(req.response.byteLength);
+                        data.set(new Uint8Array(req.response), 0);
+                        run_payload(new Uint32Array(data));
+                    }
+                };
+                req.send();
+            }
+
             function run_exploits() {
                 wexploit();
                 kexploit();
-
-                setTimeout(function() {
-                    location.href = "payloads.html";
-                }, 1500);
+                
+                document.getElementById("loading_container").style.display = "none";
+                document.getElementById("payload_container").style.display = "block";
             }
         </script>
     </head>
 
     <body onload="setTimeout(run_exploits, 1500)">
-        <div id="loader" class="circle"></div>
-        <div id="status" class="status">Running exploits...</div>
+        <div id="loading_container" style="display:block;">
+            <div id="loader" class="circle"></div>
+            <div id="status" class="status">Running exploits...</div>
+        </div>
+        <div id="payload_container" style="display:none;">
+            <payloads>
+                <buttons>
+                    <button onclick="load_payload('payloads/goldhen_2.0b2_900.bin')">GoldHEN 2.0b2</button>
+                </buttons>
+            </payloads>
+        </div>
     </body>
 </html>
