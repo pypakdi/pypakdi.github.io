@@ -11,7 +11,7 @@
 
         <script>
             function run_payload(payload_data) {
-                alert("Running: " + payload_data.length);
+                alert("RUNNING: " + payload_data.length);
 
                 var payload_buffer = chain.syscall(477, 0x0, 0x300000, 0x7, 0x1000, 0xFFFFFFFF, 0);
                 var payload_loader = p.malloc32(payload_data.length);
@@ -22,13 +22,8 @@
 
                 //This is  x86_64 asm, you can disassemble it* if you want to know what the payload loader does under the hood. (* will need to account for endianness)
                 var loader_writer = payload_loader.backing;
-                for(var i = 0; i < payload_data.length / 4; i++) {
-                    var hex = payload_data.slice(i * 4, 4 + (i * 4))
-                        .split("").reverse().join("").split("")
-                        .map(function(s) {
-                            return ("0000" + s.charCodeAt(0).toString(16)).slice(-1);
-                        }).join("");
-                    loader_writer[i] = parseInt(hex, 16);
+                for(var i = 0; i < payload_data.length; i++) {
+                    loader_writer[i] = payload_data[i];
                 }
                 chain.syscall(74, payload_loader, 0x4000, (0x1 | 0x2 | 0x4));
 
@@ -41,15 +36,14 @@
             }
 
             function load_payload(payload_file) {
-                alert("Loading: " + payload_file);
-
                 var req = new XMLHttpRequest();
                 req.responseType = "arraybuffer";
                 req.open("GET", payload_file);
                 req.onreadystatechange = function() {
                     if(req.readyState == XMLHttpRequest.DONE) {
-                        alert("Loading: " + req.response.length);
-                        run_payload(req.response);
+                        var data = new Uint8Array(req.response.byteLength);
+                        data.set(new Uint8Array(req.response), 0);
+                        run_payload(new Uint32Array(data));
                     }
                 };
                 req.send();
