@@ -11,6 +11,8 @@
 
         <script>
             function run_payload(payload_data) {
+                alert("Running: " + payload_data.length);
+
                 var payload_buffer = chain.syscall(477, 0x0, 0x300000, 0x7, 0x1000, 0xFFFFFFFF, 0);
                 var payload_loader = p.malloc32(payload_data.length);
 
@@ -39,11 +41,14 @@
             }
 
             function load_payload(payload_file) {
+                alert("Loading: " + payload_file);
+
                 var req = new XMLHttpRequest();
                 req.responseType = "arraybuffer";
                 req.open("GET", payload_file);
                 req.onreadystatechange = function() {
                     if(req.readyState == XMLHttpRequest.DONE) {
+                        alert("Loading: " + req.response.length);
                         run_payload(req.response);
                     }
                 };
