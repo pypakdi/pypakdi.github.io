@@ -20,8 +20,13 @@
 
                 //This is  x86_64 asm, you can disassemble it* if you want to know what the payload loader does under the hood. (* will need to account for endianness)
                 var loader_writer = payload_loader.backing;
-                for(var i = 0; i < payload_data.length; i++) {
-                    loader_writer[i] = payload_data[i];
+                for(var i = 0; i < payload_data.length / 4; i++) {
+                    var hex = payload_data.slice(i * 4, 4 + (i * 4))
+                        .split("").reverse().join("").split("")
+                        .map(function(s) {
+                            return ("0000" + s.charCodeAt(0).toString(16)).slice(-1);
+                        }).join("");
+                    loader_writer[i] = parseInt(hex, 16);
                 }
                 chain.syscall(74, payload_loader, 0x4000, (0x1 | 0x2 | 0x4));
 
@@ -39,9 +44,7 @@
                 req.open("GET", payload_file);
                 req.onreadystatechange = function() {
                     if(req.readyState == XMLHttpRequest.DONE) {
-                        var data = new Uint8Array(req.response.byteLength);
-                        data.set(new Uint8Array(req.response), 0);
-                        run_payload(new Uint32Array(data));
+                        run_payload(req.response);
                     }
                 };
                 req.send();
